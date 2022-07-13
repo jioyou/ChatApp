@@ -1,0 +1,101 @@
+﻿@model Chat
+@using System.Security.Claims
+
+<div class="chat-tip">当前位置：聊天室『@Model.Name』</div>
+<div class="chat-body">
+    @foreach (var message in Model.Messages)
+    {
+        <div class="message">
+            <header>
+                @if (message.Name == User.Identity.Name)
+                {
+                    <span>我：</span>
+                }
+                else
+                {
+                    <span>@message.Name：</span>
+                }
+            </header>
+            <p>@message.Text</p>
+            <footer>@message.Timetamp</footer>
+        </div>
+    }
+</div>
+<form class="chat-input" id="inputform" asp-controller="Home" asp-action="CreateMessage">
+    <input type="hidden" name="chatId" value="@Model.Id" />
+    <input type="hidden" name="roomName" value="@Model.Name" />
+    <input type="text" id="message-input" name="mess" />
+    <button type="submit" id="chat-submit">发送消息</button>
+</form>
+@section scripts{
+    <script src="~/js/Common.js"></script>
+    <script src="~/js/Chat.js"></script>
+}
+<script>
+    if (window.location.pathname == "/Home/Chat") {
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+        var _connectionId = "";
+
+        connection.on("RecieveMessage", function(data) {
+            let $message = $("<div></div>");
+            $message.addClass("message");
+            let $header = $("<header/><header>");
+            console.log("data.name：" + data.name + " == " + '@User.Identity.Name');
+            let name = data.name != '@User.Identity.Name' ? data.name : "我";
+            $header.html(name + "：");
+            let $p = $("<p></p>");
+            $p.html(data.text);
+            let $footer = $("<footer/><footer>");
+            $footer.html(new Date(data.timetamp).Format("yyyy/M/d HH:mm:ss"));
+            $message.append($header);
+            $message.append($p);
+            $message.append($footer);
+            console.log($message)
+            let body = $(".chat-body");
+            body.append($message);
+            body.scrollTop(body[0].scrollHeight);
+        });
+
+        var joinRoom = function() {
+            let url = '/Chat/JoinRoom/' + _connectionId + '/@Model.Name';
+            axios.post(url, null)
+                .then(function(res) {
+                    console.log("加入聊天室：" + res);
+                }).catch(function(err) {
+                    console.log("加入聊天室失败：" + err);
+                });
+        };
+
+        connection.start()
+            .then(function() {
+                console.log("connection.start");
+                connection.invoke("GetConnectionId")//首字母要小写，不知道为啥
+                    .then(function(connectionId) {
+                        _connectionId = connectionId;
+                        console.log(window.location.pathname);
+                        joinRoom();
+                    })
+            }).catch(function(err) {
+                console.log(err);
+            });
+
+        var SendMessage = function(e) {
+            e.preventDefault();
+            let input = $("#message-input");
+            let data = new FormData(e.target);
+            let url = "/Chat/SendMessage/"
+            axios.post(url, data)
+                .then(function(res) {
+                    console.log(url);
+                    console.log(input.val());
+                    input.val("");
+                    console.log("发送成功！" + res);
+                })
+                .catch(function(err) {
+                    console.log("发送失败！" + err);
+                })
+        };
+    }
+</script>

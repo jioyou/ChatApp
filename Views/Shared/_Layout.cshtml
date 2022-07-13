@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatApp</title>
+    <link href="~/css/Site.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/aspnet/signalr/dist/browser/signalr.js"></script>
+    <script src="~/lib/axios/dist/axios.js"></script>
+    <script src="~/js/Site.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="navbar-menu">
+                <a asp-controller="Home" asp-action="Index">Home</a>
+                <b>|</b>
+                <a asp-controller="Home" asp-action="Find">Find</a>
+            </div>
+            <div class="navbar-log">
+                <img src="~/images/photo.jpg"/>
+                <span id="log-account">
+                    @User.Identity.Name
+                </span>
+                <a id="logout" asp-controller="Account" asp-action="Logout">[登出]</a>
+            </div>
+        }
+    </div>
+    <div class="main">
+        <div class="menu">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="tab">
+                    <input type="checkbox" id="switch" name="switch">
+                    <label for="switch" class="switch-label">
+                        <span class="circle"></span>
+                        <span class="text on">私聊</span>
+                        <span class="text off">群聊</span>
+                    </label>
+                </div>
+                <div id="menu1" class="show">
+                    <vc:room chattype="0"></vc:room>
+                </div>
+                <div id="menu2" class="hide">
+                    <vc:room chattype="1"></vc:room>
+                </div>
+            }
+        </div>
+        <div class="chat">
+            @RenderBody()
+        </div>
+        <div id="createRoomModal" class="modal">
+            <form id="createroomform" asp-controller="Home" asp-action="CreateRoom" class="modal-body">
+                <a id="closeRoomModal" class="close" href="#">X</a>
+                <header>创建新Room</header>
+                <div>
+                    <input name="name" />
+                </div>
+                <footer>
+                    <button>确认</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+    @RenderSection("Scripts",false)
+</body>
+</html>

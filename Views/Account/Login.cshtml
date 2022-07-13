@@ -1,0 +1,17 @@
+﻿<div class="login-body">
+    <form class="login-form" asp-controller="Account" asp-action="Login">
+        <header>
+            <h2>登录</h2>
+        </header>
+        <div>
+            <label for="username"></label>
+            <input type="text" name="username" placeholder="请输入账号">
+            <label for="password"></label>
+            <input type="password" name="password" placeholder="请输入密码">
+        </div>
+        <footer>
+            <button type="submit">登录</button>
+            <a asp-controller="Account" asp-action="Register">注册</a>
+        </footer>
+    </form>
+</div>

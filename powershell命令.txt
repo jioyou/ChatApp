@@ -1,0 +1,17 @@
+donet new web -n ChatApp
+dotnet new -h
+dotnet new viewimports
+dotnet new viewstart
+dotnet restore
+dotnet build
+dotnet run
+dotnet watch run
+
+
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add init
+dotnet ef migrations add ChatName
+dotnet ef database update
+
+
+
